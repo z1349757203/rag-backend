@@ -17,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DataUploadServiceImpl implements DataUploadService {
+
     private final EmbeddingService embeddingService;
     private final ChromaServiceImpl chromaService;
 

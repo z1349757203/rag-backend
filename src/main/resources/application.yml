@@ -4,7 +4,11 @@ server:
 spring:
   application:
     name: rag-backend
-
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 200MB
+      max-request-size: 200MB
   ai:
     ollama:
       base-url: http://localhost:11434
@@ -20,11 +24,14 @@ spring:
         client:
           host: http://localhost
           port: 8000
-        collection-name: rag-collection
-        initialize: false
+        collection-name: rag_collection
+        tenant-name: default_tenant
+        database-name: default_database
+        initialize-schema: true
 
 # 允许前端访问（Vue 项目默认 http://localhost:5173）
 cors:
   allowed-origins: "http://localhost:5173"
   allowed-methods: "*"
   allowed-headers: "*"
+

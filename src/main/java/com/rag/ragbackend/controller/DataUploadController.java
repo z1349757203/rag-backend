@@ -3,9 +3,11 @@ package com.rag.ragbackend.controller;
 import com.rag.ragbackend.service.DataUploadService;
 import com.rag.ragbackend.utils.TextExtractor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/data")
 @RequiredArgsConstructor
@@ -29,7 +31,6 @@ public class DataUploadController {
         } else {
             throw new RuntimeException("仅支持 PDF / TXT / MD 文件");
         }
-
         int chunks = uploadService.indexDocument(text);
 
         return new UploadResponse("上传成功", chunks);

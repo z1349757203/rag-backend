@@ -1,6 +1,7 @@
 package com.rag.ragbackend.service;
 
 
+import reactor.core.publisher.Flux;
 
 /**
  * ChatService - 最小可用的内存 RAG 流程实现
@@ -15,8 +16,7 @@ package com.rag.ragbackend.service;
  */
 public interface ChatService {
 
-    void upsertDocument(String id, String text);
 
-    String chat(String query);
+    Flux<String> streamChatRag(String query);
 
 }

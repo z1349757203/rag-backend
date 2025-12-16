@@ -2,11 +2,16 @@ package com.rag.ragbackend.controller;
 
 import com.rag.ragbackend.service.ChatService;
 import com.rag.ragbackend.service.ChromaRAGService;
-import com.rag.ragbackend.service.impl.ChromaRAGServiceImpl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import com.rag.ragbackend.pojo.resp.RAGResponse;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -19,32 +24,46 @@ public class ChatController {
 
     private final ChromaRAGService ragService;
 
+//    @PostMapping("/ragDb")
+//    public RAGResponse ragDb(@RequestBody Question req) {
+//        RAGResponse ragResponse = ragService.chatWithRAG(req.message);
+//        log.info("返回值={}", ragResponse);
+//        return ragResponse;
+//    }
 
-    /**
-     * 前端调用此接口进行对话
-     */
-    @PostMapping("/rag")
-    public String chat(@RequestBody ChatRequest request) {
-        String chat = chatService.chat(request.getMessage());
-        log.info("返回值={}", chat);
-        return chat;
-    }
+    @PostMapping(value = "/ragDb", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamChatWithRAG(@RequestBody Question req) {
+        SseEmitter emitter = new SseEmitter(0L); // 不超时
 
-
-    @PostMapping("/ragDb")
-    public ChromaRAGServiceImpl.RAGResponse ragDb(@RequestBody Question req) {
-        return ragService.chatWithRAG(req.message);
+        Flux<String> stringFlux = ragService.streamChatWithRAG(req.message);
+        stringFlux
+                .doOnNext(token -> {
+                    try {
+                        Map<String, Object> payload = Map.of(
+                                "type", "delta",
+                                "content", token
+                        );
+                        emitter.send(payload);
+                        log.info("发送 token={}", token);
+                    } catch (Exception e) {
+                        log.error("SSE 发送错误", e);
+                        emitter.completeWithError(e);
+                    }
+                })
+                .doOnComplete(() -> {
+                    emitter.complete();
+                })
+                .doOnError(e -> {
+                    emitter.completeWithError(e);
+                }).subscribe();
+        log.info("返回值={}", stringFlux);
+        return emitter;
     }
 
     @Data
     public static class Question {
         public String message;
     }
-
-    public record RAGResponse(String answer, Object chunks) {}
-
-
-
 
     /**
      * 接收前端 JSON 格式 {"message": "..."}

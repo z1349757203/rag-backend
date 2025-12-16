@@ -1,5 +1,7 @@
 package com.rag.ragbackend.service;
 
+import org.springframework.ai.document.Document;
+
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +12,9 @@ import java.util.Map;
  * @Author by zjh
  */
 public interface ChromaService {
-    void createCollectionIfNotExists();
 
     void addEmbedding(String id, String text, List<Double> embedding);
 
-    List<Map<String, Object>> queryEmbedding(List<Double> embedding, int topK);
+
+    List<Document> queryVectorStore(String queryText, int topK);
 }

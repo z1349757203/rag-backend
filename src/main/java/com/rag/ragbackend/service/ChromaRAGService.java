@@ -1,6 +1,8 @@
 package com.rag.ragbackend.service;
 
+import com.rag.ragbackend.pojo.resp.RAGResponse;
 import com.rag.ragbackend.service.impl.ChromaRAGServiceImpl;
+import reactor.core.publisher.Flux;
 
 /**
  * @Description
@@ -9,5 +11,7 @@ import com.rag.ragbackend.service.impl.ChromaRAGServiceImpl;
  * @Author by zjh
  */
 public interface ChromaRAGService {
-    ChromaRAGServiceImpl.RAGResponse chatWithRAG(String question);
+    RAGResponse chatWithRAG(String question);
+
+    Flux<String> streamChatWithRAG(String question);
 }
