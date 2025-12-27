@@ -38,6 +38,7 @@ public class ChatController {
         String clientIP = getClientIpAddress(request);
         log.info("请求来自IP: {}", clientIP);
         String taskId = MD5Util.md5WithUUIDSalt(req.getMessage());
+        redisTemplate.opsForValue().set(taskId, req.getMessage(), 10, TimeUnit.MINUTES);
         sseManager.create(taskId);
         String finalTaskId = taskId;
         CompletableFuture.runAsync(() -> {

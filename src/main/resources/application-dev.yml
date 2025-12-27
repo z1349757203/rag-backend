@@ -50,17 +50,16 @@ spring:
       test-while-idle: true # 连接池中空闲连接是否进行测试
       test-on-borrow: false # 从连接池获取连接时是否进行测试
       test-on-return: false # 连接池归还连接时是否进行测试
-  cache:
-      type: redis
-      redis:
-        host: localhost
-#        host: redis # 同服务器不同docker，redis为容器名
-        port: 6379
-        password: Pa!951018
-        database: 0
-        cache-null-values: true # 是否缓存空值（防止缓存穿透）
-        use-key-prefix: true # 是否使用 key 前缀（默认开启，前缀为缓存名）
-        timeout: 60000 # 连接超时时间（毫秒）
+  redis:
+    redisson:
+      config:
+        singleServerConfig:
+          address: "redis://localhost:6379"
+          password: Pa!951018
+          database: 0
+          timeout: 3000
+        threads: 5
+        nettyThreads: 10
 # 允许前端访问（Vue 项目默认 http://localhost:5173）
 cors:
   allowed-origins: "http://localhost:5173"
