@@ -68,8 +68,6 @@ const handleSend = async (text: string) => {
 
   messages.value.push({ role: 'user', text })
 
-  // const assistantMsg = reactive({ role: 'assistant', text: '' })
-  // messages.value.push(assistantMsg)
   const assistantIndex = messages.value.length
   messages.value.push({ role: 'assistant', text: '' })
 
@@ -78,32 +76,24 @@ const handleSend = async (text: string) => {
   controller.value = new AbortController()
 
   try {
-    streamChat({
-      url: '/api/chat/ragDb',
-      payload: { message: text },
-      signal: controller.value.signal,
-      onMessage(chunk) {
-        // assistantMsg.text += chunk
-        // console.log('流式返回值chunk:',assistantMsg.text)
-         messages.value[assistantIndex].text += chunk
-        // console.log('流式返回值chunk:',messages.value[assistantIndex].text)
-      },
 
-      onError(err) {
-        messages.value[assistantIndex].text += '\n❌ 请求失败'
-        console.error(err)
-      },
+    const connectResp = await http.post('/api/chat/ask', { message: text });
+    console.log('connectResp', connectResp.data);
 
-      onComplete() {
-        loading.value = false
+    // 2. 订阅SSE流
+    const es = new EventSource(`/api/chat/stream?taskId=${connectResp.data}`)
+    es.onmessage = (e) => {
+      console.log('sse onmessage', e.data)
+      const data = JSON.parse(e.data)
+
+      if (data.type === 'delta') {
+        messages.value[assistantIndex].text += data.content
       }
 
-    })
-
-    // const res = await http.post('/api/chat/ragDb', {message: text})
-    // console.log(res.data)
-
-    // retrievedChunks.value = data.chunks ?? []
+      if (data.type === 'done') {
+        es.close()
+      }
+    }
 
   } catch (err) {
     console.error(err)

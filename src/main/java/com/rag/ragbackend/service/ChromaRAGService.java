@@ -14,4 +14,6 @@ public interface ChromaRAGService {
     RAGResponse chatWithRAG(String question);
 
     Flux<String> streamChatWithRAG(String question);
+
+    void asyncGenerate(String taskId,String question);
 }

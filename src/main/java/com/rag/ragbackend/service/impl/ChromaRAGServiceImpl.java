@@ -1,6 +1,8 @@
 package com.rag.ragbackend.service.impl;
 
+import com.rag.ragbackend.manager.SseEmitterManager;
 import com.rag.ragbackend.pojo.resp.RAGResponse;
+import com.rag.ragbackend.pojo.resp.SseMessage;
 import com.rag.ragbackend.service.ChatService;
 import com.rag.ragbackend.service.ChromaRAGService;
 import com.rag.ragbackend.service.EmbeddingService;
@@ -24,6 +26,8 @@ public class ChromaRAGServiceImpl implements ChromaRAGService {
 
     private final ChromaServiceImpl chromaService;
     private final ChatService chatService;
+    private final SseEmitterManager sseManager;
+
 
     /** 核心 RAG 工作流 */
     public RAGResponse chatWithRAG(String question) {
@@ -44,8 +48,8 @@ public class ChromaRAGServiceImpl implements ChromaRAGService {
                 %s
                 """.formatted(context, question);
 
-        Flux<String> stringFlux = chatService.streamChatRag(prompt);
-        return new RAGResponse(stringFlux.toString(),null);
+        String str = chatService.callChatRag(prompt);
+        return new RAGResponse(str,null);
     }
 
     @Override
@@ -70,6 +74,25 @@ public class ChromaRAGServiceImpl implements ChromaRAGService {
 
         Flux<String> stringFlux = chatService.streamChatRag(prompt);
         return stringFlux;
+    }
+
+    @Override
+    public void asyncGenerate(String taskId, String question) {
+        log.info("开始生成, taskId: {}", taskId);
+        Flux<String> stream = this.streamChatWithRAG(question);
+
+        stream.subscribe(
+                token -> sseManager.send(taskId, SseMessage.delta(token)),
+                error -> {
+                    sseManager.send(taskId,
+                            new SseMessage("error", error.getMessage()));
+                    sseManager.complete(taskId);
+                },
+                () -> {
+                    sseManager.send(taskId, SseMessage.done());
+                    sseManager.complete(taskId);
+                }
+        );
     }
 
 }

@@ -22,6 +22,8 @@ public interface ChatService {
      * @return
      */
     Flux<String> streamChatRag(String query);
+
+    String callChatRag(String query);
     /**
      * 压缩调用
      */

@@ -41,6 +41,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    public String callChatRag(String query) {
+        return chatModel.call(query);
+    }
+
+    @Override
     public void CompressionChat() {
 
     }
