@@ -3,6 +3,8 @@ package com.rag.ragbackend.service.impl;
 import com.rag.ragbackend.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.model.StreamingChatModel;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,9 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Flux<String> streamChatRag(String query) {
         try {
-            Flux<String> stream = chatModel.stream(query);
+            AssistantMessage assistantMessage = new AssistantMessage("你是一个基于知识库的问答助手。");
+            SystemMessage systemMessage = new SystemMessage(query);
+            Flux<String> stream = chatModel.stream(assistantMessage, systemMessage);
             return stream;
         } catch (Exception ex) {
             ex.printStackTrace();

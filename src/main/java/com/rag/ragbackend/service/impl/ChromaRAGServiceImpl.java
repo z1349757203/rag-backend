@@ -61,6 +61,7 @@ public class ChromaRAGServiceImpl implements ChromaRAGService {
         for (Document chunk : chunks) {
             context.append(chunk.getText()).append("\n");
         }
+        String assistant = "你是一个基于知识库的问答助手。";
 
         String prompt = """
                 基于以下资料回答问题，请勿编造信息，若【知识库内容】中没有相关信息，直接回复：“知识库中没有相关信息”。
