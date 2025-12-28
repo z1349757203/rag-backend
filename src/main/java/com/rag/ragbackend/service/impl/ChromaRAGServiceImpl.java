@@ -63,7 +63,7 @@ public class ChromaRAGServiceImpl implements ChromaRAGService {
         }
 
         String prompt = """
-                基于以下资料回答问题，请勿编造信息：
+                基于以下资料回答问题，请勿编造信息，若【知识库内容】中没有相关信息，直接回复：“知识库中没有相关信息”。
                 
                 【知识库内容】
                 %s
@@ -71,7 +71,7 @@ public class ChromaRAGServiceImpl implements ChromaRAGService {
                 【用户问题】
                 %s
                 """.formatted(context, question);
-
+        log.info("提示词：{}", prompt);
         Flux<String> stringFlux = chatService.streamChatRag(prompt);
         return stringFlux;
     }

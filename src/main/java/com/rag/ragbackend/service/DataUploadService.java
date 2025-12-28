@@ -1,5 +1,9 @@
 package com.rag.ragbackend.service;
 
+import org.springframework.ai.document.Document;
+
+import java.util.List;
+
 /**
  * @Description
  * @Version 1.0.0
@@ -8,4 +12,6 @@ package com.rag.ragbackend.service;
  */
 public interface DataUploadService {
     int indexDocument(String text);
+
+    void addDocument(List<Document> documents);
 }

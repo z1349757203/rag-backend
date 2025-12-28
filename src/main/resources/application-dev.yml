@@ -52,10 +52,9 @@ spring:
       test-on-return: false # 连接池归还连接时是否进行测试
   redis:
     redisson:
-      config:
+      config: |
         singleServerConfig:
           address: "redis://localhost:6379"
-          password: Pa!951018
           database: 0
           timeout: 3000
         threads: 5
@@ -73,4 +72,17 @@ thread:
     keep-alive: 60s
     queue-capacity: 100
     name-prefix: biz-task-
+
+# 日志核心配置
+logging:
+  level:
+    root: INFO # 全局日志级别
+    com.rag.qa: DEBUG # 自定义包日志级别
+    org.springframework.web: WARN
+    org.springframework.ai: DEBUG # Spring AI 日志级别
+  file:
+    path: ./logs # 日志文件存储路径（生产环境建议配置为 /var/log/${spring.application.name}）
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId}] [%thread] %-5level %logger{50} - %msg%n" # 控制台格式
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId}] [%thread] %-5level %logger{50} - %msg%n" # 文件格式
 
