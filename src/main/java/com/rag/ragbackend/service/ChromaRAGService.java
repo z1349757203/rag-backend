@@ -11,9 +11,10 @@ import reactor.core.publisher.Flux;
  * @Author by zjh
  */
 public interface ChromaRAGService {
-    RAGResponse chatWithRAG(String question);
 
-    Flux<String> streamChatWithRAG(String question);
+    String rewriteUserQuery(String question);
 
-    void asyncGenerate(String taskId,String question);
+    String callWithRAG(String ipStr, String question);
+
+    void asyncGenerate(String ipStr, String taskId,String question);
 }

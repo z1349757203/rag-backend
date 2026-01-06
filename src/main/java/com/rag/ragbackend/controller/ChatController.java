@@ -44,8 +44,9 @@ public class ChatController {
         CompletableFuture.runAsync(() -> {
             log.info("异步任务开始");
             try {
-                ragService.asyncGenerate(finalTaskId, req.getMessage());
+                ragService.asyncGenerate(clientIP, finalTaskId, req.getMessage());
             } catch (Exception e) {
+                log.error("异步任务执行异常", e);
                 Thread.currentThread().interrupt();
             }
             log.info("异步任务完成");
@@ -61,62 +62,12 @@ public class ChatController {
     public SseEmitter stream(@RequestParam String taskId) {
         return sseManager.get(taskId);
     }
-    @PostMapping("/getStreamMsg")
-    public String getStreamMsg(@RequestBody Question req, HttpServletRequest request) {
-        String clientIP = getClientIpAddress(request);
-        log.info("请求来自IP: {}", clientIP);
-        String userQuest = MD5Util.md5WithUUIDSalt(req.getMessage());
-        redisTemplate.opsForValue().set(clientIP, userQuest, 10, TimeUnit.MINUTES);
-        return userQuest;
-    }
-
-    @PostMapping(value = "/ragDb", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamChatWithRAG(@RequestBody Question req) {
-        SseEmitter emitter = new SseEmitter(5 * 60 * 1000L); // 0-不超时，5 * 60 * 1000L - 5分钟超时
-        Flux<String> stringFlux = ragService.streamChatWithRAG(req.message);
-        stringFlux
-                .doOnNext(token -> {
-                    try {
-                        Map<String, Object> payload = Map.of(
-                                "type", "delta",
-                                "content", token
-                        );
-                        emitter.send(payload);
-                        log.info("发送 token={}", token);
-                    } catch (Exception e) {
-                        log.error("SSE 发送错误", e);
-                        emitter.completeWithError(e);
-                    }
-                })
-                .doOnComplete(() -> {
-                    emitter.complete();
-                })
-                .doOnError(e -> {
-                    emitter.completeWithError(e);
-                }).subscribe();
-        log.info("返回值={}", stringFlux);
-        return emitter;
-    }
 
     @Data
     public static class Question {
         public String message;
     }
 
-    /**
-     * 接收前端 JSON 格式 {"message": "..."}
-     */
-    public static class ChatRequest {
-        private String message;
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-    }
 
     /**
      * 获取客户端真实IP地址

@@ -1,7 +1,10 @@
 package com.rag.ragbackend.service;
 
 
+import org.springframework.ai.chat.messages.Message;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 /**
  * ChatService - 最小可用的内存 RAG 流程实现
@@ -16,14 +19,13 @@ import reactor.core.publisher.Flux;
  */
 public interface ChatService {
 
-    /**
-     * 流式调用
-     * @param query
-     * @return
-     */
-    Flux<String> streamChatRag(String query);
+
+
+    Flux<String> streamChatRag(Message... messages);
 
     String callChatRag(String query);
+
+    String callChatRag(List<Message> messages);
     /**
      * 压缩调用
      */

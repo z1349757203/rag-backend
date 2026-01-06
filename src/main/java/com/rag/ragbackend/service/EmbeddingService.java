@@ -1,7 +1,6 @@
 package com.rag.ragbackend.service;
 
 
-import java.util.List;
 
 /**
  * 兼容多种返回类型的 EmbeddingService。
@@ -10,5 +9,4 @@ import java.util.List;
  */
 public interface EmbeddingService {
 
-    List<Double> embedText(String text);
 }

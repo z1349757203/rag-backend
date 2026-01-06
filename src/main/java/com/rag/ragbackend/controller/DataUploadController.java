@@ -1,6 +1,6 @@
 package com.rag.ragbackend.controller;
 
-import com.rag.ragbackend.service.DataUploadService;
+import com.rag.ragbackend.service.ChromaService;
 import com.rag.ragbackend.utils.TextExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.List;
 @CrossOrigin
 public class DataUploadController {
 
-    private final DataUploadService uploadService;
+    private final ChromaService chromaService;
 
     @PostMapping("/upload")
     public UploadResponse upload(@RequestParam("file") MultipartFile file) throws Exception {
@@ -29,11 +29,12 @@ public class DataUploadController {
         int chunks = 0;
         if (filename.endsWith(".pdf")) {
             List<Document> documents = TextExtractor.extractPdf(file.getInputStream());
-            uploadService.addDocument(documents);
+            chromaService.addDocument(documents);
             chunks = documents.size();
         } else if (filename.endsWith(".txt") || filename.endsWith(".md")) {
-            text = TextExtractor.extractText(file.getInputStream());
-            chunks = uploadService.indexDocument(text);
+            List<Document> documents = TextExtractor.extractText(file);
+            chromaService.addDocument(documents);
+            chunks = documents.size();
         } else {
             throw new RuntimeException("仅支持 PDF / TXT / MD 文件");
         }

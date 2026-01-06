@@ -13,8 +13,7 @@ import java.util.Map;
  */
 public interface ChromaService {
 
-    void addEmbedding(String id, String text, List<Double> embedding);
-
+    void addDocument(List<Document> documents);
 
     List<Document> queryVectorStore(String queryText, int topK);
 }

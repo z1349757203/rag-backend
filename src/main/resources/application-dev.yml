@@ -18,6 +18,8 @@ spring:
       chat:
         options:
           model: deepseek-r1:1.5b
+          temperature: 0.7
+          max_tokens: 2048
       embedding:
         options:
           model: nomic-embed-text
@@ -68,9 +70,9 @@ cors:
 thread:
   pool:
     core-size: 2
-    max-size: 10
-    keep-alive: 60s
-    queue-capacity: 100
+    max-size: 16
+    keep-alive: 600s
+    queue-capacity: 500
     name-prefix: biz-task-
 
 # 日志核心配置
@@ -79,7 +81,7 @@ logging:
     root: INFO # 全局日志级别
     com.rag.qa: DEBUG # 自定义包日志级别
     org.springframework.web: WARN
-    org.springframework.ai: DEBUG # Spring AI 日志级别
+    org.springframework.ai: INFO # Spring AI 日志级别
   file:
     path: ./logs # 日志文件存储路径（生产环境建议配置为 /var/log/${spring.application.name}）
   pattern:
